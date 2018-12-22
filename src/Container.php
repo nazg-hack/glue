@@ -1,52 +1,69 @@
 <?hh // strict
 
-namespace Acme\HackDi;
+namespace Nazg\Glue;
 
-use type Acme\HackDi\Exception\NotFoundException;
+use namespace Nazg\Glue\Injection;
+use namespace Nazg\Glue\Exception;
 use namespace HH\Lib\{C, Str};
-type TCallable = (function(\Acme\HackDi\Container): mixed);
+// type TCallable = (function(\Nazg\Glue\Container<Tv>): mixed);
 
-enum Scope : int {
-  PROTOTYPE = 0;
-  SINGLETON = 1;
-}
+class Container<Tv> {
+  private bool $lock = false;
+  private dict<string, (Scope, Injection\LazyNew<Tv>)> $map = dict[];
 
-class Container {
-  
-  private dict<string, (Scope, TCallable)> $map = dict[];
-
-  public function set<T as classname<T>>(
-    T $id,
-    TCallable $callback,
+  public function set<T>(
+    Injection\LazyNew<Tv> $lazy,
     Scope $scope = Scope::PROTOTYPE,
   ): void {
-    $this->map[$id] = tuple($scope, $callback);
+    if(!$this->lock) {
+      $this->map[$lazy->getName()] = tuple($scope, $lazy);
+    }
   }
 
   <<__Rx>>
-  public function get<T as classname<T>>(T $id): mixed {
+  protected function resolve<T>(classname<T> $id): mixed {
     if ($this->has($id)) {
       list($scope, $callable) = $this->map[$id];
       if ($callable is nonnull) {
         if ($scope === Scope::SINGLETON) {
           return $this->shared($id);
         }
-        return $callable($this);
+        return $callable->provide();
       }
     }
-    throw new NotFoundException(
+    throw new Exception\NotFoundException(
       Str\format('Identifier "%s" is not binding.', $id),
     );
   }
 
+  <<__Rx>>
+  public function getInstance<T>(classname<T> $t): T {
+    $mixed = $this->resolve($t);
+    invariant($mixed instanceof $t, "invalid use of incomplete type %s", $t);
+    return $mixed;
+  }
+
   <<__Memoize>>
-  protected function shared(string $id): mixed {
+  protected function shared<T>(classname<T> $id): mixed {
     list($_, $callable) = $this->map[$id];
-    return $callable($this);
+    return $callable->provide();
   }
 
   <<__Rx>>
   public function has(string $id): bool {
-    return C\contains_key($this->map, $id);
+    if($this->lock) {
+      return C\contains_key($this->map, $id);
+    }
+    throw new Exception\ContainerNotLockedException(
+      Str\format('Container was not locked.'),
+    );
+  }
+
+  public function lock(): void {
+    $this->lock = true;
+  }
+
+  public function unlock(): void {
+    $this->lock = false;
   }
 }
