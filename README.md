@@ -1,0 +1,3 @@
+# Hack Development Skeleton
+
+WIP
