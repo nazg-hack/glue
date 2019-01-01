@@ -3,7 +3,6 @@
 use namespace Nazg\Glue\Exception;
 use type Nazg\Glue\Container;
 use type Nazg\Glue\Scope;
-use type Nazg\Glue\Injection\LazyNew;
 use type Facebook\HackTest\HackTest;
 use function Facebook\FBExpect\expect;
 
@@ -15,7 +14,8 @@ final class ContainerTest extends HackTest {
     expect($container->has(\stdClass::class))->toBeFalse();
     $container->unlock();
     $container->set(
-      new LazyNew(\stdClass::class),
+      \stdClass::class,
+      ($container) ==> new \stdClass()
     );
     $container->lock();
     expect($container->has(\stdClass::class))->toBeTrue();
@@ -23,7 +23,10 @@ final class ContainerTest extends HackTest {
 
   public function testShouldBePrototypeInstance(): void {
     $container = new Container();
-    $container->set(new LazyNew(\stdClass::class));
+    $container->set(
+      \stdClass::class,
+      ($container) ==> new \stdClass()
+    );
     $container->lock();
     $stdClass = $container->getInstance(\stdClass::class);
     expect($stdClass)->toBeInstanceOf(\stdClass::class);
@@ -33,7 +36,8 @@ final class ContainerTest extends HackTest {
   public function testShouldBeSingletonInstance(): void {
     $container = new Container();
     $container->set(
-      new LazyNew(\stdClass::class),
+      \stdClass::class,
+      ($container) ==> new \stdClass(),
       Scope::SINGLETON,
     );
     $container->lock();
@@ -57,7 +61,8 @@ final class ContainerTest extends HackTest {
   public function testShouldThrowContainerNotLockedExceptionw(): void {
     $container = new Container();
     $container->set(
-      new LazyNew(\stdClass::class),
+      \stdClass::class,
+      ($container) ==> new \stdClass(),
       Scope::SINGLETON,
     );
     $container->lock();

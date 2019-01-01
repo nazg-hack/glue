@@ -2,21 +2,21 @@
 
 namespace Nazg\Glue;
 
-use namespace Nazg\Glue\Injection;
 use namespace Nazg\Glue\Exception;
 use namespace HH\Lib\{C, Str};
-// type TCallable = (function(\Nazg\Glue\Container<Tv>): mixed);
+type CallableInjector = (function(\Nazg\Glue\Container): mixed);
 
-class Container<Tv> {
+class Container {
   private bool $lock = false;
-  private dict<string, (Scope, Injection\LazyNew<Tv>)> $map = dict[];
+  private dict<string, (Scope, CallableInjector)> $map = dict[];
 
   public function set<T>(
-    Injection\LazyNew<Tv> $lazy,
+    classname<T> $id,
+    CallableInjector $callback,
     Scope $scope = Scope::PROTOTYPE,
   ): void {
     if(!$this->lock) {
-      $this->map[$lazy->getName()] = tuple($scope, $lazy);
+      $this->map[$id] = tuple($scope, $callback);
     }
   }
 
@@ -28,7 +28,7 @@ class Container<Tv> {
         if ($scope === Scope::SINGLETON) {
           return $this->shared($id);
         }
-        return $callable->provide();
+        return $callable($this);
       }
     }
     throw new Exception\NotFoundException(
@@ -46,7 +46,7 @@ class Container<Tv> {
   <<__Memoize>>
   protected function shared<T>(classname<T> $id): mixed {
     list($_, $callable) = $this->map[$id];
-    return $callable->provide();
+    return $callable($this);
   }
 
   <<__Rx>>
