@@ -1,5 +1,5 @@
 <?hh // strict
 
-namespace Acme\HackDi\Exception;
+namespace Nazg\Glue\Exception;
 
-final class NotFoundException extends \RuntimeException {}
+final class NotFoundException extends \Exception {}
