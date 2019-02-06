@@ -3,7 +3,7 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str};
+use namespace HH\Lib\{C, Str, Dict};
 type CallableInjector = (function(\Nazg\Glue\Container): mixed);
 
 class Container {
@@ -20,7 +20,6 @@ class Container {
     }
   }
 
-  <<__Rx>>
   protected function resolve<T>(classname<T> $id): mixed {
     if ($this->has($id)) {
       list($scope, $callable) = $this->map[$id];
@@ -36,7 +35,6 @@ class Container {
     );
   }
 
-  <<__Rx>>
   public function getInstance<T>(classname<T> $t): T {
     $mixed = $this->resolve($t);
     invariant($mixed instanceof $t, "invalid use of incomplete type %s", $t);
@@ -65,5 +63,18 @@ class Container {
 
   public function unlock(): void {
     $this->lock = false;
+  }
+
+  public function remove<T>(classname<T> $id): void {
+    if(!$this->lock) {
+      $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
+    }
+  }
+
+  public function registerModule(
+    classname<ServiceModule> $moduleClassName
+  ): void {
+    new $moduleClassName()
+    |> $$->provide($this);
   }
 }
