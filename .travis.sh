@@ -1,8 +1,15 @@
 #!/bin/bash
 set -ex
+apt update -y
+DEBIAN_FRONTEND=noninteractive apt install -y php-cli zip unzip
 hhvm --version
-curl https://getcomposer.org/installer | hhvm -d hhvm.jit=0 --php -- /dev/stdin --install-dir=/usr/local/bin --filename=composer
+php --version
 
-cd /var/source
-hhvm -d xdebug.enable=0 -d hhvm.jit=0 -d hhvm.hack.lang.auto_typecheck=0 /usr/local/bin/composer install
-hhvm -d xdebug.enable=0 -d hhvm.jit=0 vendor/bin/hacktest tests/
+(
+  cd $(mktemp -d)
+  curl https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+)
+composer install
+hh_client
+
+hhvm ./vendor/bin/hacktest tests/

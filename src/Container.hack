@@ -1,18 +1,15 @@
-<?hh // strict
-
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
 use namespace HH\Lib\{C, Str, Dict};
-type CallableInjector = (function(\Nazg\Glue\Container): mixed);
 
-class Container {
+class Container<T> {
   private bool $lock = false;
-  private dict<string, (Scope, CallableInjector)> $map = dict[];
+  private dict<string, (Scope, (function(\Nazg\Glue\Container<T>): T))> $map = dict[];
 
-  public function set<T>(
-    classname<T> $id,
-    CallableInjector $callback,
+  public function set(
+    typename<T> $id,
+    (function(\Nazg\Glue\Container<T>): T) $callback,
     Scope $scope = Scope::PROTOTYPE,
   ): void {
     if(!$this->lock) {
@@ -20,7 +17,7 @@ class Container {
     }
   }
 
-  protected function resolve<T>(classname<T> $id): mixed {
+  protected function resolve(typename<T> $id): T {
     if ($this->has($id)) {
       list($scope, $callable) = $this->map[$id];
       if ($callable is nonnull) {
@@ -35,20 +32,18 @@ class Container {
     );
   }
 
-  public function getInstance<T>(classname<T> $t): T {
-    $mixed = $this->resolve($t);
-    invariant($mixed instanceof $t, "invalid use of incomplete type %s", $t);
-    return $mixed;
+  public function get(typename<T> $t): T {
+    return $this->resolve($t);
   }
 
   <<__Memoize>>
-  protected function shared<T>(classname<T> $id): mixed {
+  protected function shared(typename<T> $id): T {
     list($_, $callable) = $this->map[$id];
     return $callable($this);
   }
 
   <<__Rx>>
-  public function has(string $id): bool {
+  public function has(typename<T> $id): bool {
     if($this->lock) {
       return C\contains_key($this->map, $id);
     }
@@ -65,7 +60,7 @@ class Container {
     $this->lock = false;
   }
 
-  public function remove<T>(classname<T> $id): void {
+  public function remove(typename<T> $id): void {
     if(!$this->lock) {
       $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
     }
