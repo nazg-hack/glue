@@ -1,7 +1,7 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str};
+use namespace HH\Lib\{C, Str, Dict};
 
 class Container<T> {
   private bool $lock = false;
@@ -60,7 +60,7 @@ class Container<T> {
     $this->lock = false;
   }
 
-  public function remove<T>(typename<T> $id): void {
+  public function remove(typename<T> $id): void {
     if(!$this->lock) {
       $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
     }
