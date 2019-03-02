@@ -1,5 +1,3 @@
-<?hh // strict
-
 use namespace Nazg\Glue\Exception;
 use type Nazg\Glue\Container;
 use type Nazg\Glue\Scope;
@@ -28,9 +26,9 @@ final class ContainerTest extends HackTest {
       ($container) ==> new \stdClass()
     );
     $container->lock();
-    $stdClass = $container->getInstance(\stdClass::class);
+    $stdClass = $container->get(\stdClass::class);
     expect($stdClass)->toBeInstanceOf(\stdClass::class);
-    expect($container->getInstance(\stdClass::class))->toNotBeSame($stdClass);
+    expect($container->get(\stdClass::class))->toNotBeSame($stdClass);
   }
 
   public function testShouldBeSingletonInstance(): void {
@@ -41,23 +39,22 @@ final class ContainerTest extends HackTest {
       Scope::SINGLETON,
     );
     $container->lock();
-    $stdClass = $container->getInstance(\stdClass::class);
+    $stdClass = $container->get(\stdClass::class);
     /* HH_FIXME[4053] for testing */
     $stdClass->testing = 1;
     expect($stdClass)->toBeInstanceOf(\stdClass::class);
-    $second = $container->getInstance(\stdClass::class);
+    $second = $container->get(\stdClass::class);
     expect($second)->toBeSame($stdClass);
     /* HH_FIXME[4053] for testing */
     expect($second->testing)->toBeSame(1,);
   }
 
-  <<ExpectedException(Exception\ContainerNotLockedException::class)>>
   public function testShouldThrowContainerNotLockedException(): void {
     $container = new Container();
-    $container->has(\stdClass::class);
+    expect(() ==> $container->has(\stdClass::class))
+      ->toThrow(Exception\ContainerNotLockedException::class);
   }
 
-  <<ExpectedException(Exception\NotFoundException::class)>>
   public function testShouldThrowContainerNotLockedExceptionw(): void {
     $container = new Container();
     $container->set(
@@ -66,7 +63,9 @@ final class ContainerTest extends HackTest {
       Scope::SINGLETON,
     );
     $container->lock();
-    $container->getInstance(Mock::class);
+    expect($container->has(Mock::class))->toBeFalse();
+    expect(() ==> $container->get(Mock::class))
+      ->toThrow(Exception\NotFoundException::class);
   }
 }
 
