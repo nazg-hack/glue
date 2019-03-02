@@ -68,19 +68,6 @@ final class ContainerTest extends HackTest {
       ->toThrow(Exception\NotFoundException::class);
   }
 
-  <<ExpectedException(Exception\NotFoundException::class)>>
-  public function testShouldRemoveContainerID(): void {
-    $container = new Container();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass(),
-      Scope::SINGLETON,
-    );
-    $container->remove(\stdClass::class);
-    $container->lock();
-    $container->getInstance(\stdClass::class);
-  }
-
   public function testShouldNotRemoveContainerID(): void {
     $container = new Container();
     $container->set(
@@ -90,7 +77,7 @@ final class ContainerTest extends HackTest {
     );
     $container->lock();
     $container->remove(\stdClass::class);
-    expect($container->getInstance(\stdClass::class))
+    expect($container->get(\stdClass::class))
       ->toBeInstanceOf(\stdClass::class);
   }
 }

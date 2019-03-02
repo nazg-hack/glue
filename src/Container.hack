@@ -59,4 +59,17 @@ class Container<T> {
   public function unlock(): void {
     $this->lock = false;
   }
+
+  public function remove<T>(typename<T> $id): void {
+    if(!$this->lock) {
+      $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
+    }
+  }
+
+  public function registerModule(
+    classname<ServiceModule> $moduleClassName
+  ): void {
+    new $moduleClassName()
+    |> $$->provide($this);
+  }
 }
