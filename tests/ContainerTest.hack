@@ -67,6 +67,32 @@ final class ContainerTest extends HackTest {
     expect(() ==> $container->get(Mock::class))
       ->toThrow(Exception\NotFoundException::class);
   }
+
+  <<ExpectedException(Exception\NotFoundException::class)>>
+  public function testShouldRemoveContainerID(): void {
+    $container = new Container();
+    $container->set(
+      \stdClass::class,
+      ($container) ==> new \stdClass(),
+      Scope::SINGLETON,
+    );
+    $container->remove(\stdClass::class);
+    $container->lock();
+    $container->getInstance(\stdClass::class);
+  }
+
+  public function testShouldNotRemoveContainerID(): void {
+    $container = new Container();
+    $container->set(
+      \stdClass::class,
+      ($container) ==> new \stdClass(),
+      Scope::SINGLETON,
+    );
+    $container->lock();
+    $container->remove(\stdClass::class);
+    expect($container->getInstance(\stdClass::class))
+      ->toBeInstanceOf(\stdClass::class);
+  }
 }
 
 final class Mock {
