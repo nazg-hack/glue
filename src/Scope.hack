@@ -1,5 +1,3 @@
-<?hh // strict
-
 namespace Nazg\Glue;
 
 enum Scope : int {
