@@ -3,28 +3,35 @@ namespace Nazg\Glue;
 use namespace Nazg\Glue\Exception;
 use namespace HH\Lib\{C, Str, Dict};
 
-class Container<T> {
+class Container {
   private bool $lock = false;
-  private dict<string, (Scope, (function(\Nazg\Glue\Container<T>): T))> $map = dict[];
+  private dict<string, DependencyInterface> $bindings = dict[];
 
-  public function set(
-    typename<T> $id,
-    (function(\Nazg\Glue\Container<T>): T) $callback,
-    Scope $scope = Scope::PROTOTYPE,
-  ): void {
-    if(!$this->lock) {
-      $this->map[$id] = tuple($scope, $callback);
+  public function bind<T>(
+    typename<T> $id
+  ): Bind<T> {
+    return new Bind($this, $id);
+  }
+
+  public function add<T>(Bind<T> $bind): void {
+    $bound = $bind->getBound();
+    if($bound is DependencyInterface) {
+      $bound->register($bind);
+      $this->bindings[$bind->getId()] = $bound;
     }
   }
 
-  protected function resolve(typename<T> $id): T {
+  protected function resolve<T>(typename<T> $id): T {
     if ($this->has($id)) {
-      list($scope, $callable) = $this->map[$id];
-      if ($callable is nonnull) {
+      $bound = $this->bindings[$id];
+      if ($bound is nonnull) {
+        return $bound->resolve($id);
+        /*
         if ($scope === Scope::SINGLETON) {
           return $this->shared($id);
         }
         return $callable($this);
+        */
       }
     }
     throw new Exception\NotFoundException(
@@ -32,20 +39,21 @@ class Container<T> {
     );
   }
 
-  public function get(typename<T> $t): T {
+  public function get<T>(typename<T> $t): T {
     return $this->resolve($t);
   }
 
   <<__Memoize>>
-  protected function shared(typename<T> $id): T {
-    list($_, $callable) = $this->map[$id];
-    return $callable($this);
+  protected function shared<T>(typename<T> $id): T {
+    //list($_, $callable) = $this->map[$id];
+    //return $callable($this);
+    throw new \Exception();
   }
 
   <<__Rx>>
-  public function has(typename<T> $id): bool {
+  public function has<T>(typename<T> $id): bool {
     if($this->lock) {
-      return C\contains_key($this->map, $id);
+      return C\contains_key($this->bindings, $id);
     }
     throw new Exception\ContainerNotLockedException(
       Str\format('Container was not locked.'),
@@ -58,12 +66,6 @@ class Container<T> {
 
   public function unlock(): void {
     $this->lock = false;
-  }
-
-  public function remove(typename<T> $id): void {
-    if(!$this->lock) {
-      $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
-    }
   }
 
   public function registerModule(

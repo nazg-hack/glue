@@ -5,7 +5,7 @@ use type Nazg\Glue\Container;
 <<__ConsistentConstruct>>
 abstract class ServiceModule {
 
-  abstract public function provide<T>(
-    Container<T> $container
+  abstract public function provide(
+    Container $container
   ): void;
 }
