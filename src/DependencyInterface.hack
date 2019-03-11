@@ -7,10 +7,6 @@ interface DependencyInterface {
   ): void;
 
   public function resolve<T>(
-    string $id
+    \Nazg\Glue\Container $container
   ): T;
-
-  public function has<T>(
-    string $id
-  ): bool;
 }

@@ -5,10 +5,6 @@ use namespace HH\Lib\{C, Str, Dict};
 
 use type ReflectionClass;
 
-/**
- *
- *
- */
 class Bind<T> {
   private Scope $scope = Scope::SINGLETON;
   private ?DependencyInterface $bound;
@@ -22,9 +18,9 @@ class Bind<T> {
     Scope $scope,
     typename<Tc> $concrete
   ): void {
-    $factory = new DependencyFactory();
+    $factory = new DependencyFactory($this->container);
     $this->scope = $scope;
-    $this->bound = $factory->closureDependency($concrete);
+    $this->bound = $factory->createInstance($concrete);
     $this->container->add($this);
   }
 
@@ -34,5 +30,9 @@ class Bind<T> {
 
   public function getBound(): ?DependencyInterface {
     return $this->bound;
+  }
+
+  public function getScope(): Scope {
+    return $this->scope;
   }
 }

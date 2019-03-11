@@ -10,9 +10,9 @@ final class ContainerTest extends HackTest {
     $container = new Container();
     $container->bind(Mock::class)
       ->to(Scope::PROTOTYPE, Mock::class);
-    // $container->get(Mock::class);
     $container->lock();
-    var_dump($container->get(Mock::class));
+    expect($container->get(Mock::class))
+      ->toNotBeSame($container->get(Mock::class));
   }
 }
 

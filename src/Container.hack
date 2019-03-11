@@ -16,7 +16,6 @@ class Container {
   public function add<T>(Bind<T> $bind): void {
     $bound = $bind->getBound();
     if($bound is DependencyInterface) {
-      $bound->register($bind);
       $this->bindings[$bind->getId()] = $bound;
     }
   }
@@ -24,14 +23,8 @@ class Container {
   protected function resolve<T>(typename<T> $id): T {
     if ($this->has($id)) {
       $bound = $this->bindings[$id];
-      if ($bound is nonnull) {
-        return $bound->resolve($id);
-        /*
-        if ($scope === Scope::SINGLETON) {
-          return $this->shared($id);
-        }
-        return $callable($this);
-        */
+      if ($bound is DependencyInterface) {
+        return $bound->resolve($this);
       }
     }
     throw new Exception\NotFoundException(
