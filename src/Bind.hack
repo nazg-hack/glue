@@ -15,8 +15,8 @@ class Bind<T> {
   ) {}
 
   public function to<Tc>(
-    Scope $scope,
-    typename<Tc> $concrete
+    typename<Tc> $concrete,
+    Scope $scope = Scope::SINGLETON
   ): void {
     $factory = new DependencyFactory($this->container);
     $this->scope = $scope;

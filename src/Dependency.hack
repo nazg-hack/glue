@@ -16,22 +16,18 @@ final class Dependency<T> implements DependencyInterface {
     private \Nazg\Glue\Container $container
   ) {}
 
-  public function register(
-    Bind<T> $bind
-  ): void {
-    $this->bind = $bind;
-  }
-
-  public function resolve(\Nazg\Glue\Container $container): T {
+  public function resolve(
+    \Nazg\Glue\Container $container,
+    Scope $scope
+  ): T {
     $construtor = $this->reflection->getConstructor();
     if($this->reflection->isInstantiable()) {
-      $scope = $this->bind?->getScope();
-      if ($construtor is ReflectionMethod) {
-        if($scope === Scope::SINGLETON) {
-          if ($this->instance is nonnull) {
-            return $this->instance;
-          }
+      if($scope === Scope::SINGLETON) {
+        if ($this->instance is nonnull) {
+          return $this->shared();
         }
+      }
+      if ($construtor is ReflectionMethod) {
         if ($construtor->getNumberOfParameters() === 0) {
           $this->instance = $this->reflection->newInstance();
           return $this->instance;
@@ -43,7 +39,15 @@ final class Dependency<T> implements DependencyInterface {
         $this->instance = $this->reflection->newInstanceArgs($arguments);
         return $this->instance;
       }
-      $this->instance = $this->reflection->newInstance(); 
+      $this->instance = $this->reflection->newInstance();
+      return $this->instance;
+    }
+    throw new \RuntimeException();
+  }
+
+  <<__Memoize>>
+  protected function shared(): T {
+    if ($this->instance is nonnull) {
       return $this->instance;
     }
     throw new \RuntimeException();

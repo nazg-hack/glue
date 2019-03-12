@@ -5,7 +5,7 @@ use namespace HH\Lib\{C, Str, Dict};
 
 class Container {
   private bool $lock = false;
-  private dict<string, DependencyInterface> $bindings = dict[];
+  private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
 
   public function bind<T>(
     typename<T> $id
@@ -16,15 +16,15 @@ class Container {
   public function add<T>(Bind<T> $bind): void {
     $bound = $bind->getBound();
     if($bound is DependencyInterface) {
-      $this->bindings[$bind->getId()] = $bound;
+      $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
     }
   }
 
   protected function resolve<T>(typename<T> $id): T {
     if ($this->has($id)) {
-      $bound = $this->bindings[$id];
+      list($bound, $scope) = $this->bindings[$id];
       if ($bound is DependencyInterface) {
-        return $bound->resolve($this);
+        return $bound->resolve($this, $scope);
       }
     }
     throw new Exception\NotFoundException(
@@ -34,13 +34,6 @@ class Container {
 
   public function get<T>(typename<T> $t): T {
     return $this->resolve($t);
-  }
-
-  <<__Memoize>>
-  protected function shared<T>(typename<T> $id): T {
-    //list($_, $callable) = $this->map[$id];
-    //return $callable($this);
-    throw new \Exception();
   }
 
   <<__Rx>>
