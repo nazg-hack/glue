@@ -18,10 +18,28 @@ class Bind<T> {
     typename<Tc> $concrete,
     Scope $scope = Scope::SINGLETON
   ): void {
-    $factory = new DependencyFactory($this->container);
+    $factory = $this->getFactory();
     $this->scope = $scope;
-    $this->bound = $factory->createInstance($concrete);
+    $this->bound = $factory->makeInstance($concrete);
     $this->container->add($this);
+  }
+
+  public function in(Scope $scope): void {
+
+  }
+
+  public function provider(
+    classname<ProviderInterface> $provider
+  ) : void {
+    $factory = $this->getFactory();
+    $this->scope = Scope::SINGLETON;
+    $this->bound = $factory->makeInstanceByProvider($provider);
+    $this->container->add($this);
+  }
+
+  <<__Memoize>>
+  protected function getFactory(): DependencyFactory {
+    return new DependencyFactory($this->container);
   }
 
   public function getId(): string {

@@ -6,50 +6,31 @@ use type ReflectionClass;
 use type ReflectionMethod;
 use function array_key_exists;
 
-final class Dependency<T> implements DependencyInterface {
-  
-  private ?Bind<T> $bind;
-  private ?T $instance;
+final class Dependency<T> extends AbstractDependency<T> implements DependencyInterface {
 
   public function __construct(
-    private ReflectionClass $reflection,
+    private Injector $injector,
     private \Nazg\Glue\Container $container
   ) {}
 
   public function resolve(
-    \Nazg\Glue\Container $container,
     Scope $scope
   ): T {
-    $construtor = $this->reflection->getConstructor();
-    if($this->reflection->isInstantiable()) {
-      if($scope === Scope::SINGLETON) {
-        if ($this->instance is nonnull) {
-          return $this->shared();
-        }
+    list($reflection, $args) = $this->injector->getReflectionClass();
+    if($scope === Scope::SINGLETON) {
+      if ($this->instance is nonnull) {
+        return $this->shared();
       }
-      if ($construtor is ReflectionMethod) {
-        if ($construtor->getNumberOfParameters() === 0) {
-          $this->instance = $this->reflection->newInstance();
-          return $this->instance;
-        }
-        $arguments = vec[];
-        foreach($construtor->getParameters() as $parameter) {
-          $arguments[] = $this->container->get($parameter->getTypehintText());
-        }
-        $this->instance = $this->reflection->newInstanceArgs($arguments);
-        return $this->instance;
+    }
+    if($args is vec<_>) {
+      $parameters = vec[];
+      foreach($args as $arg) {
+        $parameters[] = $this->container->get($arg);
       }
-      $this->instance = $this->reflection->newInstance();
+      $this->instance = $reflection->newInstanceArgs($parameters);
       return $this->instance;
     }
-    throw new \RuntimeException();
-  }
-
-  <<__Memoize>>
-  protected function shared(): T {
-    if ($this->instance is nonnull) {
-      return $this->instance;
-    }
-    throw new \RuntimeException();
+    $this->instance = $reflection->newInstance();
+    return $this->instance;
   }
 }

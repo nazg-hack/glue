@@ -24,7 +24,7 @@ class Container {
     if ($this->has($id)) {
       list($bound, $scope) = $this->bindings[$id];
       if ($bound is DependencyInterface) {
-        return $bound->resolve($this, $scope);
+        return $bound->resolve($scope);
       }
     }
     throw new Exception\NotFoundException(

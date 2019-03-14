@@ -10,9 +10,18 @@ final class DependencyFactory {
     private \Nazg\Glue\Container $container
   ) {}
 
-  public function createInstance<T>(
+  public function makeInstance<T>(
     typename<T> $concrete
   ): DependencyInterface {
-    return new Dependency(new ReflectionClass($concrete), $this->container);
+    return new Dependency(
+      new Injector(new ReflectionClass($concrete)), $this->container
+    );
+  }
+
+  public function makeInstanceByProvider(
+    classname<ProviderInterface> $provider
+  ): DependencyInterface {
+    $provide = new $provider();
+    return new DependencyProvider($provide, $this->container);
   }
 }
