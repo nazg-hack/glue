@@ -1,9 +1,6 @@
 namespace Nazg\Glue;
 
-use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str, Dict};
 
-use type ReflectionClass;
 
 class Bind<T> {
   private Scope $scope = Scope::SINGLETON;
@@ -15,26 +12,27 @@ class Bind<T> {
   ) {}
 
   public function to<Tc>(
-    typename<Tc> $concrete,
-    Scope $scope = Scope::SINGLETON
-  ): void {
+    typename<Tc> $concrete
+  ): this {
     $factory = $this->getFactory();
-    $this->scope = $scope;
     $this->bound = $factory->makeInstance($concrete);
     $this->container->add($this);
+    return $this;
   }
 
-  public function in(Scope $scope): void {
-
+  public function in(Scope $scope): this {
+    $this->scope = $scope;
+    $this->container->add($this);
+    return $this;
   }
 
-  public function provider(
-    classname<ProviderInterface> $provider
-  ) : void {
+  public function provider<Tp>(
+    ProviderInterface<Tp> $provider
+  ) : this {
     $factory = $this->getFactory();
-    $this->scope = Scope::SINGLETON;
     $this->bound = $factory->makeInstanceByProvider($provider);
     $this->container->add($this);
+    return $this;
   }
 
   <<__Memoize>>

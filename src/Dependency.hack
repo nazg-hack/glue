@@ -1,10 +1,5 @@
 namespace Nazg\Glue;
 
-use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str, Dict};
-use type ReflectionClass;
-use type ReflectionMethod;
-use function array_key_exists;
 
 final class Dependency<T> extends AbstractDependency<T> implements DependencyInterface {
 
@@ -13,6 +8,7 @@ final class Dependency<T> extends AbstractDependency<T> implements DependencyInt
     private \Nazg\Glue\Container $container
   ) {}
 
+  <<__Override>>
   public function resolve(
     Scope $scope
   ): T {

@@ -1,7 +1,7 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str, Dict};
+use namespace HH\Lib\{C, Str};
 
 class Container {
   private bool $lock = false;

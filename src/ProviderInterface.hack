@@ -1,9 +1,6 @@
 namespace Nazg\Glue;
 
-<<__ConsistentConstruct>>
-interface ProviderInterface {
+interface ProviderInterface<T> {
 
-  public function get<T>(
-    \Nazg\Glue\Container $container
-  ): T;
+  public function get(): T;
 }

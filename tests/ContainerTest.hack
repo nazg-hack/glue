@@ -10,7 +10,8 @@ final class ContainerTest extends HackTest {
   public function testShoulbReturnPrototypeInstance(): void {
     $container = new Container();
     $container->bind(Mock::class)
-      ->to(Mock::class, Scope::PROTOTYPE);
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
     $container->lock();
     expect($container->get(Mock::class))
       ->toNotBeSame($container->get(Mock::class));
@@ -28,7 +29,8 @@ final class ContainerTest extends HackTest {
   public function testShoulbThrowNotBindingExceptionAtComplexPrototypeInstance(): void {
     $container = new Container();
     $container->bind(AnyInterface::class)
-      ->to(Any::class, Scope::PROTOTYPE);
+      ->to(Any::class)
+      ->in(Scope::PROTOTYPE);
     $container->lock();
     expect(() ==> $container->get(AnyInterface::class))
       ->toThrow(Exception\NotFoundException::class);
@@ -37,9 +39,11 @@ final class ContainerTest extends HackTest {
   public function testShoulbReturnComplexPrototypeInstance(): void {
     $container = new Container();
     $container->bind(AnyInterface::class)
-      ->to(Any::class, Scope::PROTOTYPE);
+      ->to(Any::class)
+      ->in(Scope::PROTOTYPE);
     $container->bind(Mock::class)
-      ->to(Mock::class, Scope::PROTOTYPE);
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
     $container->lock();
     expect($container->get(AnyInterface::class))
       ->toBeInstanceOf(AnyInterface::class);
@@ -47,14 +51,13 @@ final class ContainerTest extends HackTest {
 
   public function testShoulbReturnComplexPrototypeInstanceByProvider(): void {
     $container = new Container();
-    $container->bind(AnyInterface::class)
-      ->to(Any::class, Scope::PROTOTYPE);
     $container->bind(Mock::class)
-      ->to(Mock::class, Scope::PROTOTYPE);
-    $container->bind(ProviderInterface::class)
-      ->provider(AnyProvider::class);
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
+    $container->bind(Any::class)
+      ->provider(new AnyProvider($container));
     $container->lock();
-    expect($container->get(AnyInterface::class))
+    expect($container->get(Any::class))
       ->toBeInstanceOf(AnyInterface::class);
   }
 }
@@ -73,11 +76,13 @@ final class Any implements AnyInterface {
   }
 }
 
-final class AnyProvider implements ProviderInterface {
+final class AnyProvider implements ProviderInterface<Any> {
 
-  public function get(
-    \Nazg\Glue\Container $container
-  ): Any {
-    return $container->get(Any::class);
+  public function __construct(
+    private \Nazg\Glue\Container $container
+  ) {}
+
+  public function get(): Any {
+    return new Any($this->container->get(Mock::class));
   }
 }

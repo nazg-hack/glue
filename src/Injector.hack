@@ -3,7 +3,6 @@ namespace Nazg\Glue;
 use type ReflectionClass;
 use type ReflectionMethod;
 
-type Transaction = shape();
 class Injector {
 
   public function __construct(
