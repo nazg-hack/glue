@@ -7,6 +7,10 @@ class Container {
   private bool $lock = false;
   private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
 
+  public function __construct(
+    private ContainerConfig $config = new ContainerConfig(false),
+  ){}
+
   public function bind<T>(
     typename<T> $id
   ): Bind<T> {
@@ -48,6 +52,10 @@ class Container {
 
   public function lock(): void {
     $this->lock = true;
+    if($this->config->enableCache()) {
+      $file = new SerializeFile($this->config->cacheFile());
+      \HH\Asio\join($file->saveAsync(\serialize($this->bindings)));
+    }
   }
 
   public function unlock(): void {
