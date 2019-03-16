@@ -2,7 +2,6 @@ namespace Nazg\Glue;
 
 use namespace HH\Lib\Experimental\Filesystem;
 use namespace Nazg\Glue\Serializer;
-use type HH\Lib\_Private\FileHandle;
 
 class SerializeFile {
 
@@ -25,7 +24,7 @@ class SerializeFile {
     await $handle->writeAsync($serializer->serialize());
     await $handle->closeAsync();
   }
-  
+
   public async function readAsync(
     Serializer\UnserializeInterface $unserializer
   ): Awaitable<dict<string, (DependencyInterface, Scope)>> {

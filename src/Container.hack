@@ -1,7 +1,6 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace Nazg\Glue\Serializer;
 use namespace HH\Lib\{C, Str};
 
 class Container {
