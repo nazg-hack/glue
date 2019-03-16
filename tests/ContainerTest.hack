@@ -1,87 +1,79 @@
 use namespace Nazg\Glue\Exception;
 use type Nazg\Glue\Container;
 use type Nazg\Glue\Scope;
+use type Nazg\Glue\ProviderInterface;
 use type Facebook\HackTest\HackTest;
 use function Facebook\FBExpect\expect;
 
 final class ContainerTest extends HackTest {
 
-  public function testHasIdentifierShoulbReturnBool(): void {
+  public function testShoulbReturnPrototypeInstance(): void {
     $container = new Container();
-    $container->lock();
-    expect($container->has(\stdClass::class))->toBeFalse();
-    $container->unlock();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass()
-    );
-    $container->lock();
-    expect($container->has(\stdClass::class))->toBeTrue();
+    $container->bind(Mock::class)
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
+    expect($container->get(Mock::class))
+      ->toNotBeSame($container->get(Mock::class));
   }
 
-  public function testShouldBePrototypeInstance(): void {
+  public function testShoulbReturnSingletonInstance(): void {
     $container = new Container();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass()
-    );
-    $container->lock();
-    $stdClass = $container->get(\stdClass::class);
-    expect($stdClass)->toBeInstanceOf(\stdClass::class);
-    expect($container->get(\stdClass::class))->toNotBeSame($stdClass);
+    $container->bind(Mock::class)
+      ->to(Mock::class);
+    expect($container->get(Mock::class))
+      ->toBeSame($container->get(Mock::class));
   }
 
-  public function testShouldBeSingletonInstance(): void {
+  public function testShoulbThrowNotBindingExceptionAtComplexPrototypeInstance(): void {
     $container = new Container();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass(),
-      Scope::SINGLETON,
-    );
-    $container->lock();
-    $stdClass = $container->get(\stdClass::class);
-    /* HH_FIXME[4053] for testing */
-    $stdClass->testing = 1;
-    expect($stdClass)->toBeInstanceOf(\stdClass::class);
-    $second = $container->get(\stdClass::class);
-    expect($second)->toBeSame($stdClass);
-    /* HH_FIXME[4053] for testing */
-    expect($second->testing)->toBeSame(1,);
-  }
-
-  public function testShouldThrowContainerNotLockedException(): void {
-    $container = new Container();
-    expect(() ==> $container->has(\stdClass::class))
-      ->toThrow(Exception\ContainerNotLockedException::class);
-  }
-
-  public function testShouldThrowContainerNotLockedExceptionw(): void {
-    $container = new Container();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass(),
-      Scope::SINGLETON,
-    );
-    $container->lock();
-    expect($container->has(Mock::class))->toBeFalse();
-    expect(() ==> $container->get(Mock::class))
+    $container->bind(AnyInterface::class)
+      ->to(Any::class)
+      ->in(Scope::PROTOTYPE);
+    expect(() ==> $container->get(AnyInterface::class))
       ->toThrow(Exception\NotFoundException::class);
   }
 
-  public function testShouldNotRemoveContainerID(): void {
+  public function testShoulbReturnComplexPrototypeInstance(): void {
     $container = new Container();
-    $container->set(
-      \stdClass::class,
-      ($container) ==> new \stdClass(),
-      Scope::SINGLETON,
-    );
-    $container->lock();
-    $container->remove(\stdClass::class);
-    expect($container->get(\stdClass::class))
-      ->toBeInstanceOf(\stdClass::class);
+    $container->bind(AnyInterface::class)
+      ->to(Any::class)
+      ->in(Scope::PROTOTYPE);
+    $container->bind(Mock::class)
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
+    expect($container->get(AnyInterface::class))
+      ->toBeInstanceOf(AnyInterface::class);
+  }
+
+  public function testShoulbReturnComplexPrototypeInstanceByProvider(): void {
+    $container = new Container();
+    $container->bind(Mock::class)
+      ->to(Mock::class)
+      ->in(Scope::PROTOTYPE);
+    $container->bind(Any::class)
+      ->provider(new AnyProvider());
+    expect($container->get(Any::class))
+      ->toBeInstanceOf(AnyInterface::class);
   }
 }
 
 final class Mock {
 
+}
+
+interface AnyInterface {
+
+}
+
+final class Any implements AnyInterface {
+  public function __construct(private Mock $mock) {
+
+  }
+}
+
+final class AnyProvider implements ProviderInterface<Any> {
+
+  public function get(\Nazg\Glue\Container $container): Any {
+    return new Any($container->get(Mock::class));
+  }
 }

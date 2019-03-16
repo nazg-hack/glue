@@ -1,30 +1,30 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str, Dict};
+use namespace HH\Lib\{C, Str};
 
-class Container<T> {
-  private bool $lock = false;
-  private dict<string, (Scope, (function(\Nazg\Glue\Container<T>): T))> $map = dict[];
+class Container {
 
-  public function set(
-    typename<T> $id,
-    (function(\Nazg\Glue\Container<T>): T) $callback,
-    Scope $scope = Scope::PROTOTYPE,
-  ): void {
-    if(!$this->lock) {
-      $this->map[$id] = tuple($scope, $callback);
+  private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
+
+  public function bind<T>(
+    typename<T> $id
+  ): Bind<T> {
+    return new Bind($this, $id);
+  }
+
+  public function add<T>(Bind<T> $bind): void {
+    $bound = $bind->getBound();
+    if($bound is DependencyInterface) {
+      $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
     }
   }
 
-  protected function resolve(typename<T> $id): T {
+  protected function resolve<T>(typename<T> $id): T {
     if ($this->has($id)) {
-      list($scope, $callable) = $this->map[$id];
-      if ($callable is nonnull) {
-        if ($scope === Scope::SINGLETON) {
-          return $this->shared($id);
-        }
-        return $callable($this);
+      list($bound, $scope) = $this->bindings[$id];
+      if ($bound is DependencyInterface) {
+        return $bound->resolve($scope);
       }
     }
     throw new Exception\NotFoundException(
@@ -32,38 +32,15 @@ class Container<T> {
     );
   }
 
-  public function get(typename<T> $t): T {
+  public function get<T>(typename<T> $t): T {
     return $this->resolve($t);
   }
 
-  <<__Memoize>>
-  protected function shared(typename<T> $id): T {
-    list($_, $callable) = $this->map[$id];
-    return $callable($this);
-  }
-
-  <<__Rx>>
-  public function has(typename<T> $id): bool {
-    if($this->lock) {
-      return C\contains_key($this->map, $id);
+  public function has<T>(typename<T> $id): bool {
+    if(!$this->bindings is nonnull) {
+      return false;
     }
-    throw new Exception\ContainerNotLockedException(
-      Str\format('Container was not locked.'),
-    );
-  }
-
-  public function lock(): void {
-    $this->lock = true;
-  }
-
-  public function unlock(): void {
-    $this->lock = false;
-  }
-
-  public function remove(typename<T> $id): void {
-    if(!$this->lock) {
-      $this->map = Dict\filter_with_key($this->map, ($k, $_) ==> $k !== $id);
-    }
+    return C\contains_key($this->bindings, $id);
   }
 
   public function registerModule(
@@ -71,5 +48,9 @@ class Container<T> {
   ): void {
     new $moduleClassName()
     |> $$->provide($this);
+  }
+
+  public function getBindings(): dict<string, (DependencyInterface, Scope)> {
+    return $this->bindings;
   }
 }
