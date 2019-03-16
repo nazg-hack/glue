@@ -7,5 +7,5 @@ interface UnserializeInterface {
 
   public function unserializeAsync(
     Awaitable<string> $bytes
-  ): Awaitable<array<string, (DependencyInterface, Scope)>>;
+  ): Awaitable<dict<string, (DependencyInterface, Scope)>>;
 }
