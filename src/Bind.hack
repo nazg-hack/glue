@@ -33,7 +33,6 @@ class Bind<T> {
     return $this;
   }
 
-  <<__Memoize>>
   protected function getFactory(): DependencyFactory {
     return new DependencyFactory($this->container);
   }

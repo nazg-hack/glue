@@ -16,7 +16,7 @@ final class DependencyProvider<T> extends AbstractDependency<T> implements Depen
         return $this->shared();
       }
     }
-    $this->instance = $this->provider->get();
+    $this->instance = $this->provider->get($this->container);
     return $this->instance;
   }
 }

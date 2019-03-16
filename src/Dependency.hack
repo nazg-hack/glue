@@ -1,6 +1,5 @@
 namespace Nazg\Glue;
 
-
 final class Dependency<T> extends AbstractDependency<T> implements DependencyInterface {
 
   public function __construct(

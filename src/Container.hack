@@ -1,15 +1,12 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
+use namespace Nazg\Glue\Serializer;
 use namespace HH\Lib\{C, Str};
 
 class Container {
-  private bool $lock = false;
-  private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
 
-  public function __construct(
-    private ContainerConfig $config = new ContainerConfig(false),
-  ){}
+  private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
 
   public function bind<T>(
     typename<T> $id
@@ -40,26 +37,11 @@ class Container {
     return $this->resolve($t);
   }
 
-  <<__Rx>>
   public function has<T>(typename<T> $id): bool {
-    if($this->lock) {
-      return C\contains_key($this->bindings, $id);
+    if(!$this->bindings is nonnull) {
+      return false;
     }
-    throw new Exception\ContainerNotLockedException(
-      Str\format('Container was not locked.'),
-    );
-  }
-
-  public function lock(): void {
-    $this->lock = true;
-    if($this->config->enableCache()) {
-      $file = new SerializeFile($this->config->cacheFile());
-      \HH\Asio\join($file->saveAsync(\serialize($this->bindings)));
-    }
-  }
-
-  public function unlock(): void {
-    $this->lock = false;
+    return C\contains_key($this->bindings, $id);
   }
 
   public function registerModule(
@@ -67,5 +49,9 @@ class Container {
   ): void {
     new $moduleClassName()
     |> $$->provide($this);
+  }
+
+  public function getBindings(): dict<string, (DependencyInterface, Scope)> {
+    return $this->bindings;
   }
 }
