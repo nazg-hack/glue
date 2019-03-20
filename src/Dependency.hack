@@ -3,12 +3,12 @@ namespace Nazg\Glue;
 final class Dependency<T> extends AbstractDependency<T> implements DependencyInterface {
 
   public function __construct(
-    private Injector $injector,
-    private \Nazg\Glue\Container $container
+    private Injector $injector
   ) {}
 
   <<__Override>>
   public function resolve(
+    \Nazg\Glue\Container $container,
     Scope $scope
   ): T {
     list($reflection, $args) = $this->injector->getReflectionClass();
@@ -20,7 +20,7 @@ final class Dependency<T> extends AbstractDependency<T> implements DependencyInt
     if($args is vec<_>) {
       $parameters = vec[];
       foreach($args as $arg) {
-        $parameters[] = $this->container->get($arg);
+        $parameters[] = $container->get($arg);
       }
       $this->instance = $reflection->newInstanceArgs($parameters);
       return $this->instance;

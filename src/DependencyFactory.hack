@@ -12,13 +12,13 @@ final class DependencyFactory {
     typename<T> $concrete
   ): DependencyInterface {
     return new Dependency(
-      new Injector(new ReflectionClass($concrete)), $this->container
+      new Injector(new ReflectionClass($concrete))
     );
   }
 
   public function makeInstanceByProvider<T>(
     ProviderInterface<T> $provider
   ): DependencyInterface {
-    return new DependencyProvider($provider, $this->container);
+    return new DependencyProvider($provider);
   }
 }

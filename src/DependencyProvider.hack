@@ -3,12 +3,12 @@ namespace Nazg\Glue;
 final class DependencyProvider<T> extends AbstractDependency<T> implements DependencyInterface {
 
   public function __construct(
-    private ProviderInterface<T> $provider,
-    private \Nazg\Glue\Container $container
+    private ProviderInterface<T> $provider
   ) {}
 
   <<__Override>>
   public function resolve(
+    \Nazg\Glue\Container $container,
     Scope $scope
   ): T {
     if($scope === Scope::SINGLETON) {
@@ -16,7 +16,7 @@ final class DependencyProvider<T> extends AbstractDependency<T> implements Depen
         return $this->shared();
       }
     }
-    $this->instance = $this->provider->get($this->container);
+    $this->instance = $this->provider->get($container);
     return $this->instance;
   }
 }
