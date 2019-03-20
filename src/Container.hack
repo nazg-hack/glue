@@ -20,7 +20,7 @@ class Container {
   }
 
   public function add<T>(Bind<T> $bind): void {
-    if($this->isLock != false) {
+    if($this->isLock === false) {
       $bound = $bind->getBound();
       if($bound is DependencyInterface) {
         $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
