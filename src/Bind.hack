@@ -1,6 +1,6 @@
 namespace Nazg\Glue;
 
-class Bind<T> {
+final class Bind<T> {
   private Scope $scope = Scope::SINGLETON;
   private ?DependencyInterface $bound;
 

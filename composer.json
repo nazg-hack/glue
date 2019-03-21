@@ -1,7 +1,7 @@
 {
   "name": "nazg/glue",
   "type": "library",
-  "description": "LightWeight Dependency Injection Container For HHVM/Hack",
+  "description": "Dependency Injection Container For HHVM/Hack",
   "homepage": "https://github.com/nazg-hack/glue",
   "license": "MIT",
   "keywords": [

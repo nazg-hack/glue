@@ -10,12 +10,12 @@ class Injector {
   ) {}
 
   public function getReflectionClass(): (ReflectionClass, ?vec<typename<mixed>>) {
-    $construtor = $this->reflection->getConstructor();
+    $constructor = $this->reflection->getConstructor();
     if($this->reflection->isInstantiable()) {
-      if ($construtor is ReflectionMethod) {
-        if ($construtor->getNumberOfParameters() !== 0) {
+      if ($constructor is ReflectionMethod) {
+        if ($constructor->getNumberOfParameters() !== 0) {
           $arguments = vec[];
-          foreach($construtor->getParameters() as $parameter) {
+          foreach($constructor->getParameters() as $parameter) {
             $arguments[] = $parameter->getTypehintText();
           }
           return tuple($this->reflection, $arguments);
