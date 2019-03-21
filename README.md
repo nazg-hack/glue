@@ -34,6 +34,8 @@ $container = new Container();
 $container->bind(AnyInterface::class)
   ->to(Mock::class)
   ->in(Scope::PROTOTYPE);
+\HH\Asio\join($container->lockAsync());
+
 ```
 
 dependencies will be automatically resolved
