@@ -1,8 +1,6 @@
-use namespace Nazg\Glue\Exception;
 use type Nazg\Glue\Bind;
 use type Nazg\Glue\Container;
 use type Nazg\Glue\Scope;
-use type Nazg\Glue\ProviderInterface;
 use type Facebook\HackTest\HackTest;
 use function Facebook\FBExpect\expect;
 
@@ -20,6 +18,7 @@ final class BindTest extends HackTest {
     $container->bind(Mock::class)
       ->to(Mock::class)
       ->in(Scope::PROTOTYPE);
+    \HH\Asio\join($container->lockAsync());
     expect(\count($container->getBindings()))
       ->toBeSame(1);
   }

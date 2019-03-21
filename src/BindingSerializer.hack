@@ -1,22 +1,20 @@
 namespace Nazg\Glue;
 
-use namespace Nazg\Glue\Exception;
 use namespace Nazg\Glue\Serializer;
-use namespace HH\Lib\{C, Str};
 
-class ContainerCache {
+class BindingSerializer {
 
   public function __construct(
-    protected SerializeFile $fileCache,
+    protected FileCache $fileCache,
   ) {}
 
-  public async function unserializeAsync(
+  final public async function unserializeAsync(
   ): Awaitable<dict<string, (DependencyInterface, Scope)>> {
     $r = await $this->fileCache->readAsync($this->getUnserializer());
     return $r;
   }
 
-  public async function serializeAsync(
+  final public async function serializeAsync(
     dict<string, (DependencyInterface, Scope)> $bindings
   ): Awaitable<void> {
     await $this->fileCache->saveAsync($this->getSerializer($bindings));
@@ -30,5 +28,9 @@ class ContainerCache {
 
   protected function getUnserializer(): Serializer\UnserializeInterface {
     return new Serializer\HackUnserializer();
+  }
+
+  final public function hasSerializeFile(): bool {
+    return $this->fileCache->exists();
   }
 }

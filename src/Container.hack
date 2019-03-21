@@ -1,17 +1,12 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace Nazg\Glue\Serializer;
 use namespace HH\Lib\{C, Str};
 
+<<__Sealed(CachedContainer::class)>>
 class Container {
-
-  private dict<string, (DependencyInterface, Scope)> $bindings = dict[];
+  protected dict<string, (DependencyInterface, Scope)> $bindings = dict[];
   private bool $isLock = false;
-
-  public function __construct(
-    private ?ContainerCache $cache = null
-  ) {}
 
   public function bind<T>(
     typename<T> $id
@@ -20,7 +15,7 @@ class Container {
   }
 
   public function add<T>(Bind<T> $bind): void {
-    if($this->isLock === false) {
+    if(!$this->isLock()) {
       $bound = $bind->getBound();
       if($bound is DependencyInterface) {
         $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
@@ -44,29 +39,22 @@ class Container {
     return $this->resolve($t);
   }
 
+  <<__Rx>>
+  public function isLock(): bool {
+    return $this->isLock;
+  }
 
   public async function lockAsync(): Awaitable<void> {
     $this->isLock = true;
-    if ($this->cache is ContainerCache) {
-      await $this->cache->serializeAsync($this->getBindings());
-    }
-  }
-
-  <<__Memoize>>
-  protected function resolveBindings(): dict<string, (DependencyInterface, Scope)> {
-    if ($this->cache is ContainerCache) {
-      return \HH\Asio\join($this->cache->unserializeAsync());
-    }
-    return dict[];
   }
 
   public function has<T>(typename<T> $id): bool {
-    if ($this->isLock === true) {
-      if ($this->cache is ContainerCache) {
-        $this->bindings = $this->resolveBindings();
-      }
+    if ($this->isLock()) {
+      return C\contains_key($this->bindings, $id);
     }
-    return C\contains_key($this->bindings, $id);
+    throw new Exception\ContainerNotLockedException(
+      'Cannot modify container when locked.'
+    );
   }
 
   public function registerModule(

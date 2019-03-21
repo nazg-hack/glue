@@ -3,7 +3,7 @@ namespace Nazg\Glue;
 use namespace HH\Lib\Experimental\Filesystem;
 use namespace Nazg\Glue\Serializer;
 
-class SerializeFile {
+class FileCache {
 
   public function __construct(
     private string $filename

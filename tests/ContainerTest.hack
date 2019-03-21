@@ -12,6 +12,7 @@ final class ContainerTest extends HackTest {
     $container->bind(Mock::class)
       ->to(Mock::class)
       ->in(Scope::PROTOTYPE);
+    \HH\Asio\join($container->lockAsync());
     expect($container->get(Mock::class))
       ->toNotBeSame($container->get(Mock::class));
   }
@@ -20,6 +21,7 @@ final class ContainerTest extends HackTest {
     $container = new Container();
     $container->bind(Mock::class)
       ->to(Mock::class);
+    \HH\Asio\join($container->lockAsync());
     expect($container->get(Mock::class))
       ->toBeSame($container->get(Mock::class));
   }
@@ -29,6 +31,7 @@ final class ContainerTest extends HackTest {
     $container->bind(AnyInterface::class)
       ->to(Any::class)
       ->in(Scope::PROTOTYPE);
+    \HH\Asio\join($container->lockAsync());
     expect(() ==> $container->get(AnyInterface::class))
       ->toThrow(Exception\NotFoundException::class);
   }
@@ -41,6 +44,7 @@ final class ContainerTest extends HackTest {
     $container->bind(Mock::class)
       ->to(Mock::class)
       ->in(Scope::PROTOTYPE);
+    \HH\Asio\join($container->lockAsync());
     expect($container->get(AnyInterface::class))
       ->toBeInstanceOf(AnyInterface::class);
   }
@@ -52,6 +56,7 @@ final class ContainerTest extends HackTest {
       ->in(Scope::PROTOTYPE);
     $container->bind(Any::class)
       ->provider(new AnyProvider());
+    \HH\Asio\join($container->lockAsync());
     expect($container->get(Any::class))
       ->toBeInstanceOf(AnyInterface::class);
   }
