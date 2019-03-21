@@ -1,6 +1,4 @@
-use type Nazg\Glue\Container;
 use type Nazg\Glue\ContainerBuilder;
-use type Nazg\Glue\SerializeFile;
 use type Nazg\Glue\Scope;
 use type Facebook\HackTest\HackTest;
 use function Facebook\FBExpect\expect;
