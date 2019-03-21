@@ -62,4 +62,12 @@ $container->bind(AnyInterface::class)
   ->provider(new AnyProvider();
 ```
 
-### Caching
+### Binding Serialization Cache
+
+```hack
+use type Nazg\Glue\ContainerBuilder;
+
+$builder = new ContainerBuilder(true, __DIR__ . '/your/serialized.filename');
+// return a \Nazg\Glue\CachedContainer Instance
+$container = $builder->make();
+```
