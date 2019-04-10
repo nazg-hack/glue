@@ -1,3 +1,18 @@
+/**
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This software consists of voluntary contributions made by many individuals
+ * and is licensed under the MIT license.
+ *
+ * Copyright (c) 2018-2019 Yuuki Takezawa
+*/
+
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
@@ -15,11 +30,14 @@ class Container {
   }
 
   public function add<T>(Bind<T> $bind): void {
-    if(!$this->isLock()) {
-      $bound = $bind->getBound();
-      if($bound is DependencyInterface) {
-        $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
-      }
+    if($this->isLock()) {
+      throw new Exception\ContainerNotLockedException(
+        'Cannot modify container when locked.'
+      );
+    }
+    $bound = $bind->getBound();
+    if($bound is DependencyInterface) {
+      $this->bindings[$bind->getId()] = tuple($bound, $bind->getScope());
     }
   }
 
@@ -49,12 +67,7 @@ class Container {
   }
 
   public function has<T>(typename<T> $id): bool {
-    if ($this->isLock()) {
-      return C\contains_key($this->bindings, $id);
-    }
-    throw new Exception\ContainerNotLockedException(
-      'Cannot modify container when locked.'
-    );
+    return C\contains_key($this->bindings, $id);
   }
 
   public function registerModule(

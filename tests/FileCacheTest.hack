@@ -1,5 +1,4 @@
 use type Nazg\Glue\Scope;
-use type Nazg\Glue\Container;
 use type Nazg\Glue\FileCache;
 use type Nazg\Glue\ProviderInterface;
 use type Nazg\Glue\DependencyProvider;
@@ -38,7 +37,7 @@ final class FileCacheTest extends HackTest {
 
 final class stdClassProvider implements ProviderInterface<\stdClass> {
 
-  public function get(\Nazg\Glue\Container $container): \stdClass {
+  public function get(\Nazg\Glue\Container $_container): \stdClass {
     return new \stdClass();
   }
 }
