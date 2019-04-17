@@ -2,6 +2,8 @@
 
 Dependency Injection Container For Hack
 
+[![Build Status](https://travis-ci.org/nazg-hack/glue.svg?branch=master)](https://travis-ci.org/nazg-hack/glue)
+
 ## Requirements
 
 HHVM 4.0.0 and above.
