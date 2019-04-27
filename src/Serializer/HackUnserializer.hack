@@ -21,10 +21,9 @@ use function unserialize;
 
 class HackUnserializer implements UnserializeInterface {
 
-  public async function unserializeAsync(
-    Awaitable<string> $bytes
-  ): Awaitable<dict<string, (DependencyInterface, Scope)>> {
-    $b = await $bytes;
-    return unserialize($b);
+  public function unserialize(
+    string $bytes
+  ): dict<string, (DependencyInterface, Scope)> {
+    return unserialize($bytes);
   }
 }

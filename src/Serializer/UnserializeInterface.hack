@@ -20,7 +20,7 @@ use type Nazg\Glue\DependencyInterface;
 
 interface UnserializeInterface {
 
-  public function unserializeAsync(
-    Awaitable<string> $bytes
-  ): Awaitable<dict<string, (DependencyInterface, Scope)>>;
+  public function unserialize(
+    string $bytes
+  ): dict<string, (DependencyInterface, Scope)>;
 }

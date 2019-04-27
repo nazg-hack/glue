@@ -23,10 +23,14 @@ class Container {
   protected dict<string, (DependencyInterface, Scope)> $bindings = dict[];
   private bool $isLock = false;
 
+  public function __construct(
+    protected DependencyFactory $factory
+  ) {}
+
   public function bind<T>(
     typename<T> $id
   ): Bind<T> {
-    return new Bind($this, $id);
+    return new Bind($this, $id, $this->factory);
   }
 
   public function add<T>(Bind<T> $bind): void {
@@ -66,6 +70,7 @@ class Container {
     $this->isLock = true;
   }
 
+  <<__Rx>>
   public function has<T>(typename<T> $id): bool {
     return C\contains_key($this->bindings, $id);
   }

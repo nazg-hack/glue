@@ -5,10 +5,10 @@ use function Facebook\FBExpect\expect;
 
 final class CachedContainerTest extends HackTest {
 
-  const string FILENAME = __DIR__ . '/resources/testing.cache';
+  const string KEYNAME = 'CachedContainerTest';
 
-  public async function testShouldCreateSerializeFile(): Awaitable<void> {
-    $builder = new ContainerBuilder(true, self::FILENAME);
+  public async function testShouldCreateSerialize(): Awaitable<void> {
+    $builder = new ContainerBuilder(true, self::KEYNAME);
     $container = $builder->make();
     $container->bind(Mock::class)
       ->to(Mock::class)
@@ -16,13 +16,12 @@ final class CachedContainerTest extends HackTest {
     $container->bind(Any::class)
       ->provider(new AnyProvider());
     await $container->lockAsync();
-    expect(file_exists(self::FILENAME))
-      ->toBeTrue();
+    expect(apc_exists(self::KEYNAME))->toBeTrue();
   }
 
   // Irregular! Deprecated Usage.
   public async function testShouldReturnInstanceFromSerializeFile(): Awaitable<void> {
-    $builder = new ContainerBuilder(true, self::FILENAME);
+    $builder = new ContainerBuilder(true, self::KEYNAME);
     $container = $builder->make();
     await $container->lockAsync();
     expect($container->get(Any::class))
@@ -31,6 +30,6 @@ final class CachedContainerTest extends HackTest {
 
   <<__Override>>
   public static async function afterLastTestAsync(): Awaitable<void> {
-    @unlink(self::FILENAME);
+    @unlink(self::KEYNAME);
   }
 }
