@@ -8,6 +8,30 @@ Dependency Injection Container For Hack
 
 HHVM 4.0.0 and above.
 
+## Installation
+Composer is the recommended installation method.  
+To add Nazg\Glue to your project, add the following to your composer.json then re-run composer:
+
+```json
+  "require": {
+    "nazg/glue": "^1.0.0"
+  }
+```
+
+Run Composer commands using HHVM like so:
+
+```bash
+$ composer install
+```
+
+In addition, you will need to use hhvm-autoload as your autoloader.
+
+or
+
+```bash
+$ composer require nazg/glue
+```
+
 ## Usage
 
 ### First steps
