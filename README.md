@@ -46,6 +46,22 @@ dependencies will be automatically resolved
 $container->get(AnyInterface::class);
 ```
 
+### Scopes
+
+use the `Nazg\Glue\Scope` enum.
+
+```hack
+enum Scope : int {
+  PROTOTYPE = 0;
+  SINGLETON = 1;
+}
+```
+
+|   |    |
+|-----------|----------|
+| `Nazg\Glue\Scope\PROTOTYPE` | single instance |
+| `Nazg\Glue\Scope\SINGLETON` | prototype instance  |
+
 ### Providers
 
 use \Nazg\Glue\ProviderInterface.
