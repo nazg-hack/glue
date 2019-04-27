@@ -19,20 +19,21 @@ class ContainerBuilder {
 
   public function __construct(
     private bool $useCache = false,
-    private string $cachefileName = ''
+    private string $keyName = ''
   ) {}
 
   public function make(): \Nazg\Glue\Container {
     if ($this->useCache) {
       return new \Nazg\Glue\CachedContainer(
-        new BindingSerializer(new FileCache($this->cachefileName))
+        new DependencyFactory(),
+        new BindingSerializer(new ApcCache($this->keyName))
       );
     }
-    return new \Nazg\Glue\Container();
+    return new \Nazg\Glue\Container(new DependencyFactory(),);
   }
 
-  final public function useCache(string $cacheFileName): void {
+  final public function useCache(string $keyName): void {
     $this->useCache = true;
-    $this->cachefileName = $cacheFileName;
+    $this->keyName = $keyName;
   }
 }

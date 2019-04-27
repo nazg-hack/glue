@@ -20,9 +20,11 @@ class CachedContainer extends \Nazg\Glue\Container {
   private bool $serialized = false;
 
   public function __construct(
+    protected DependencyFactory $factory,
     private BindingSerializer $serializer
   ) {
-    $serialized = $serializer->hasSerializeFile();
+    parent::__construct($factory);
+    $serialized = $serializer->hasSerialize();
     $this->detectBindings($serialized);
     $this->serialized = $serialized;
   }
@@ -38,13 +40,13 @@ class CachedContainer extends \Nazg\Glue\Container {
   public async function lockAsync(): Awaitable<void> {
     await parent::lockAsync();
     if (!$this->serialized) {
-      await $this->serializer->serializeAsync($this->getBindings());
+      $this->serializer->serialize($this->getBindings());
     }
   }
 
   private function detectBindings(bool $serialized): void {
     if ($serialized) {
-      $this->bindings = \HH\Asio\join($this->serializer->unserializeAsync());
+      $this->bindings = $this->serializer->unserialize();
     }
   }
 }

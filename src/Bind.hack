@@ -22,13 +22,13 @@ final class Bind<T> {
   public function __construct(
     private \Nazg\Glue\Container $container,
     private typename<T> $id,
+    private DependencyFactory $factory
   ) {}
 
   public function to<Tc>(
     typename<Tc> $concrete
   ): this {
-    $factory = $this->getFactory();
-    $this->bound = $factory->makeInstance($concrete);
+    $this->bound = $this->factory->makeInstance($concrete);
     $this->container->add($this);
     return $this;
   }
@@ -42,14 +42,9 @@ final class Bind<T> {
   public function provider<Tp>(
     ProviderInterface<Tp> $provider
   ) : this {
-    $factory = $this->getFactory();
-    $this->bound = $factory->makeInstanceByProvider($provider);
+    $this->bound = $this->factory->makeInstanceByProvider($provider);
     $this->container->add($this);
     return $this;
-  }
-
-  protected function getFactory(): DependencyFactory {
-    return new DependencyFactory($this->container);
   }
 
   public function getId(): string {

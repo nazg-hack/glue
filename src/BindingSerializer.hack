@@ -20,19 +20,18 @@ use namespace Nazg\Glue\Serializer;
 class BindingSerializer {
 
   public function __construct(
-    protected FileCache $fileCache,
+    protected ApcCache $apcCache,
   ) {}
 
-  final public async function unserializeAsync(
-  ): Awaitable<dict<string, (DependencyInterface, Scope)>> {
-    $r = await $this->fileCache->readAsync($this->getUnserializer());
-    return $r;
+  final public function unserialize(
+  ): dict<string, (DependencyInterface, Scope)> {
+    return $this->apcCache->read($this->getUnserializer());
   }
 
-  final public async function serializeAsync(
+  final public function serialize(
     dict<string, (DependencyInterface, Scope)> $bindings
-  ): Awaitable<void> {
-    await $this->fileCache->saveAsync($this->getSerializer($bindings));
+  ): void {
+    $this->apcCache->save($this->getSerializer($bindings));
   }
 
   protected function getSerializer(
@@ -45,7 +44,7 @@ class BindingSerializer {
     return new Serializer\HackUnserializer();
   }
 
-  final public function hasSerializeFile(): bool {
-    return $this->fileCache->exists();
+  final public function hasSerialize(): bool {
+    return $this->apcCache->exists();
   }
 }

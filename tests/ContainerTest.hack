@@ -1,6 +1,7 @@
 use namespace Nazg\Glue\Exception;
 use type Nazg\Glue\Container;
 use type Nazg\Glue\Scope;
+use type Nazg\Glue\DependencyFactory;
 use type Nazg\Glue\ProviderInterface;
 use type Facebook\HackTest\HackTest;
 use function Facebook\FBExpect\expect;
@@ -8,7 +9,7 @@ use function Facebook\FBExpect\expect;
 final class ContainerTest extends HackTest {
 
   public function testShoulbReturnPrototypeInstance(): void {
-    $container = new Container();
+    $container = new Container(new DependencyFactory());
     $container->bind(Mock::class)
       ->to(Mock::class)
       ->in(Scope::PROTOTYPE);
@@ -18,7 +19,7 @@ final class ContainerTest extends HackTest {
   }
 
   public function testShoulbReturnSingletonInstance(): void {
-    $container = new Container();
+    $container = new Container(new DependencyFactory());
     $container->bind(Mock::class)
       ->to(Mock::class);
     \HH\Asio\join($container->lockAsync());
@@ -27,7 +28,7 @@ final class ContainerTest extends HackTest {
   }
 
   public function testShoulbThrowNotBindingExceptionAtComplexPrototypeInstance(): void {
-    $container = new Container();
+    $container = new Container(new DependencyFactory());
     $container->bind(AnyInterface::class)
       ->to(Any::class)
       ->in(Scope::PROTOTYPE);
@@ -37,7 +38,7 @@ final class ContainerTest extends HackTest {
   }
 
   public function testShoulbReturnComplexPrototypeInstance(): void {
-    $container = new Container();
+    $container = new Container(new DependencyFactory());
     $container->bind(AnyInterface::class)
       ->to(Any::class)
       ->in(Scope::PROTOTYPE);
@@ -50,7 +51,7 @@ final class ContainerTest extends HackTest {
   }
 
   public function testShoulbReturnComplexPrototypeInstanceByProvider(): void {
-    $container = new Container();
+    $container = new Container(new DependencyFactory());
     $container->bind(Mock::class)
       ->to(Mock::class)
       ->in(Scope::PROTOTYPE);

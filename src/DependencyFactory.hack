@@ -19,10 +19,6 @@ use type ReflectionClass;
 
 final class DependencyFactory {
 
-  public function __construct(
-    private \Nazg\Glue\Container $container
-  ) {}
-
   public function makeInstance<T>(
     typename<T> $concrete
   ): DependencyInterface {
