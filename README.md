@@ -81,7 +81,7 @@ enum Scope : int {
 }
 ```
 
-|   |    |
+| enum |    |
 |-----------|----------|
 | `Nazg\Glue\Scope\PROTOTYPE` | single instance |
 | `Nazg\Glue\Scope\SINGLETON` | prototype instance  |
