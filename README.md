@@ -2,7 +2,10 @@
 
 Dependency Injection Container For Hack
 
-[![Build Status](https://travis-ci.org/nazg-hack/glue.svg?branch=master)](https://travis-ci.org/nazg-hack/glue)
+[![Travis (.org)](https://img.shields.io/travis/nazg-hack/glue.svg?style=flat-square)](https://travis-ci.org/nazg-hack/glue)
+[![Packagist](https://img.shields.io/packagist/dt/nazg/glue.svg?style=flat-square)](https://packagist.org/packages/nazg/glue)
+[![Packagist Version](https://img.shields.io/packagist/v/nazg/glue.svg?color=orange&style=flat-square)](https://packagist.org/packages/nazg/glue)
+[![Packagist](https://img.shields.io/packagist/l/nazg/glue.svg?style=flat-square)](https://packagist.org/packages/nazg/glue)
 
 ## Requirements
 
