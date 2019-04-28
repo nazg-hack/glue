@@ -15,10 +15,14 @@
 
 namespace Nazg\Glue;
 
+use type ReflectionClass;
+use namespace HH\Lib\Vec;
+
 final class Dependency<T> extends AbstractDependency<T> implements DependencyInterface {
 
   public function __construct(
-    private Injector $injector
+    private ReflectionClass $reflection,
+    private ?vec<typename<mixed>> $args
   ) {}
 
   <<__Override>>
@@ -26,21 +30,18 @@ final class Dependency<T> extends AbstractDependency<T> implements DependencyInt
     \Nazg\Glue\Container $container,
     Scope $scope
   ): T {
-    list($reflection, $args) = $this->injector->getReflectionClass();
     if($scope === Scope::SINGLETON) {
       if ($this->instance is nonnull) {
         return $this->shared();
       }
     }
-    if($args is vec<_>) {
-      $parameters = vec[];
-      foreach($args as $arg) {
-        $parameters[] = $container->get($arg);
-      }
-      $this->instance = $reflection->newInstanceArgs($parameters);
+    if($this->args is nonnull) {
+      $this->instance = $this->reflection->newInstanceArgs(
+        Vec\map($this->args, ($id) ==> $container->get($id))
+      );
       return $this->instance;
     }
-    $this->instance = $reflection->newInstance();
+    $this->instance = $this->reflection->newInstance();
     return $this->instance;
   }
 }

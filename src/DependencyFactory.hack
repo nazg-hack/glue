@@ -22,9 +22,9 @@ final class DependencyFactory {
   public function makeInstance<T>(
     typename<T> $concrete
   ): DependencyInterface {
-    return new Dependency(
-      new Injector(new ReflectionClass($concrete))
-    );
+    $inject = new Injector(new ReflectionClass($concrete));
+    list($reflection, $args) = $inject->getReflectionClass();
+    return new Dependency($reflection, $args);
   }
 
   public function makeInstanceByProvider<T>(
