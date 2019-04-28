@@ -111,7 +111,7 @@ $container->bind(AnyInterface::class)
 ```hack
 use type Nazg\Glue\ContainerBuilder;
 
-$builder = new ContainerBuilder(true, __DIR__ . '/your/serialized.filename');
+$builder = new ContainerBuilder(true, 'apc.cache.key.name');
 // return a \Nazg\Glue\CachedContainer Instance
 $container = $builder->make();
 ```
