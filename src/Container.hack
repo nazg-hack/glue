@@ -16,7 +16,8 @@
 namespace Nazg\Glue;
 
 use namespace Nazg\Glue\Exception;
-use namespace HH\Lib\{C, Str};
+use namespace HH\Lib\Str;
+use function array_key_exists;
 
 <<__Sealed(CachedContainer::class)>>
 class Container {
@@ -34,7 +35,7 @@ class Container {
   }
 
   public function add<T>(Bind<T> $bind): void {
-    if($this->isLock()) {
+    if($this->isLock) {
       throw new Exception\ContainerNotLockedException(
         'Cannot modify container when locked.'
       );
@@ -45,23 +46,18 @@ class Container {
     }
   }
 
-  protected function resolve<T>(typename<T> $id): T {
-    if ($this->has($id)) {
-      list($bound, $scope) = $this->bindings[$id];
+  public function get<T>(typename<T> $t): T {
+    if ($this->has($t)) {
+      list($bound, $scope) = $this->bindings[$t];
       if ($bound is DependencyInterface) {
         return $bound->resolve($this, $scope);
       }
     }
     throw new Exception\NotFoundException(
-      Str\format('Identifier "%s" is not binding.', $id),
+      Str\format('Identifier "%s" is not binding.', $t),
     );
   }
 
-  public function get<T>(typename<T> $t): T {
-    return $this->resolve($t);
-  }
-
-  <<__Rx>>
   public function isLock(): bool {
     return $this->isLock;
   }
@@ -70,9 +66,8 @@ class Container {
     $this->isLock = true;
   }
 
-  <<__Rx>>
   public function has<T>(typename<T> $id): bool {
-    return C\contains_key($this->bindings, $id);
+    return array_key_exists($id, $this->bindings);
   }
 
   public function registerModule(

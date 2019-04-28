@@ -31,9 +31,4 @@ class ContainerBuilder {
     }
     return new \Nazg\Glue\Container(new DependencyFactory(),);
   }
-
-  final public function useCache(string $keyName): void {
-    $this->useCache = true;
-    $this->keyName = $keyName;
-  }
 }

@@ -26,6 +26,6 @@ abstract class AbstractDependency<T> implements DependencyInterface {
     if ($this->instance is nonnull) {
       return $this->instance;
     }
-    throw new RuntimeException();
+    throw new RuntimeException('runtime error.');
   }
 }

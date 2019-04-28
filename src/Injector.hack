@@ -17,8 +17,10 @@ namespace Nazg\Glue;
 
 use type ReflectionClass;
 use type ReflectionMethod;
+use namespace HH\Lib\Vec;
 
-class Injector {
+final class Injector {
+  private vec<typename<mixed>> $arguments = vec[];
 
   public function __construct(
     private ReflectionClass $reflection
@@ -29,11 +31,10 @@ class Injector {
     if($this->reflection->isInstantiable()) {
       if ($constructor is ReflectionMethod) {
         if ($constructor->getNumberOfParameters() !== 0) {
-          $arguments = vec[];
           foreach($constructor->getParameters() as $parameter) {
-            $arguments[] = $parameter->getTypehintText();
+            $this->arguments[] = $parameter->getTypehintText();
           }
-          return tuple($this->reflection, $arguments);
+          return tuple($this->reflection, $this->arguments);
         }
       }
       return tuple($this->reflection, null);
