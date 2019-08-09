@@ -17,6 +17,7 @@ namespace Nazg\Glue;
 
 use namespace HH\Lib\Experimental\Filesystem;
 use namespace Nazg\Glue\Serializer;
+use type Nazg\Glue\Exception\CacheNotFoundException;
 use function apc_store;
 use function apc_exists;
 use function apc_fetch;
@@ -39,7 +40,12 @@ class ApcCache {
   public function read(
     Serializer\UnserializeInterface $unserializer
   ): dict<string, (DependencyInterface, Scope)> {
-    return $unserializer->unserialize(apc_fetch($this->keyname));
+    $success = null;
+    $result = apc_fetch($this->keyname, &$success);
+    if (!$success) {
+      throw new CacheNotFoundException('cache not found.');
+    }
+    return $unserializer->unserialize($result);
   }
 
   public function exists(): bool {
