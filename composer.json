@@ -11,7 +11,7 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "hhvm": "^4.5",
+    "hhvm": "^4.14",
     "hhvm/hsl": "^4.0",
     "hhvm/hsl-experimental": "^4.0",
     "hhvm/hhvm-autoload": "^2.0.7"
