@@ -11,14 +11,14 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "hhvm": "^4.0",
+    "hhvm": "^4.5",
     "hhvm/hsl": "^4.0",
     "hhvm/hsl-experimental": "^4.0",
-    "hhvm/hhvm-autoload": "^2.0.0"
+    "hhvm/hhvm-autoload": "^2.0.7"
   },
   "require-dev": {
-    "hhvm/hacktest": "^1.4",
-    "facebook/fbexpect": "^2.5.2",
+    "hhvm/hacktest": "^1.6.1",
+    "facebook/fbexpect": "^2.6.0",
     "hhvm/hhast": "^4.0.0"
   },
   "autoload": {
