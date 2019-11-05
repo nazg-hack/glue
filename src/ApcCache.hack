@@ -41,7 +41,7 @@ class ApcCache {
     Serializer\UnserializeInterface $unserializer
   ): dict<string, (DependencyInterface, Scope)> {
     $success = null;
-    $result = apc_fetch($this->keyname, &$success);
+    $result = apc_fetch($this->keyname, inout $success);
     if (!$success) {
       throw new CacheNotFoundException('cache not found.');
     }
