@@ -9,7 +9,7 @@ Dependency Injection Container For Hack
 
 ## Requirements
 
-HHVM 4.0.0 and above.
+HHVM 4.35.0 and above.
 
 ## Installation
 Composer is the recommended installation method.  
@@ -17,7 +17,7 @@ To add Nazg\Glue to your project, add the following to your composer.json then r
 
 ```json
   "require": {
-    "nazg/glue": "^1.0.0"
+    "nazg/glue": "^1.4"
   }
 ```
 
