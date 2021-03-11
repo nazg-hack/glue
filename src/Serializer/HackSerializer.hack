@@ -25,7 +25,7 @@ class HackSerializer implements SerializeInterface {
     private dict<string, (DependencyInterface, Scope)> $bindings
   ) {}
 
-  public function serialize(): string {
+  public function serialize()[]: string {
     return serialize($this->bindings);
   }
 }

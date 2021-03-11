@@ -47,15 +47,15 @@ final class Bind<T> {
     return $this;
   }
 
-  public function getId(): string {
+  public function getId()[]: string {
     return $this->id;
   }
 
-  public function getBound(): ?DependencyInterface {
+  public function getBound()[]: ?DependencyInterface {
     return $this->bound;
   }
 
-  public function getScope(): Scope {
+  public function getScope()[]: Scope {
     return $this->scope;
   }
 }

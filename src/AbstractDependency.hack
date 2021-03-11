@@ -22,7 +22,7 @@ abstract class AbstractDependency<T> implements DependencyInterface {
   protected ?T $instance;
 
   <<__Memoize>>
-  protected function shared(): T {
+  protected function shared()[]: T {
     if ($this->instance is nonnull) {
       return $this->instance;
     }

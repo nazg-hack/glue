@@ -25,8 +25,10 @@ class Container {
   private bool $isLock = false;
 
   public function __construct(
-    protected DependencyFactory $factory
-  ) {}
+    protected DependencyFactory $factory,
+    private (function(): string) $func = () ==> "a"
+  ) {
+  }
 
   public function bind<T>(
     typename<T> $id
@@ -34,7 +36,7 @@ class Container {
     return new Bind($this, $id, $this->factory);
   }
 
-  public function add<T>(Bind<T> $bind): void {
+  public function add<T>(Bind<T> $bind)[write_props]: void {
     if($this->isLock) {
       throw new Exception\ContainerNotLockedException(
         'Cannot modify container when locked.'
@@ -58,7 +60,7 @@ class Container {
     );
   }
 
-  public function isLock(): bool {
+  public function isLock()[]: bool {
     return $this->isLock;
   }
 
@@ -66,7 +68,7 @@ class Container {
     $this->isLock = true;
   }
 
-  public function has<T>(typename<T> $id): bool {
+  public function has<T>(typename<T> $id)[]: bool {
     return array_key_exists($id, $this->bindings);
   }
 
@@ -77,8 +79,7 @@ class Container {
     |> $$->provide($this);
   }
 
-  <<__Rx>>
-  public function getBindings(): dict<string, (DependencyInterface, Scope)> {
+  public function getBindings()[]: dict<string, (DependencyInterface, Scope)> {
     return $this->bindings;
   }
 }

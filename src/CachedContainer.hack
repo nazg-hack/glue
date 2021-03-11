@@ -30,7 +30,7 @@ class CachedContainer extends \Nazg\Glue\Container {
   }
 
   <<__Override>>
-  public function add<T>(Bind<T> $bind): void {
+  public function add<T>(Bind<T> $bind)[write_props]: void {
     if(!$this->serialized) {
       parent::add($bind);
     }
