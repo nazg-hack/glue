@@ -5,14 +5,16 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+  schedule:
+    cron: '0 0 * * *'
+    
 jobs:
   testing:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        hhvm: ["4.100", "4.99", "4.98", "latest", "nightly"]
-        os: ["macos-latest"]
+        hhvm: ["4.103", "4.102", "4.101", "4.100", "4.99", "4.98", "latest", "nightly"]
+        os: ["ubuntu-latest"]
     steps:
       - name: "checkout"
         uses: "actions/checkout@v2"
